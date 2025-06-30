@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trip Management System</title>
+    <title>Trip Management System with Time Tracking</title>
     <style>
         * {
             margin: 0;
@@ -56,6 +56,8 @@
             padding: 5px;
             margin-bottom: 30px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+            gap: 5px;
         }
         
         .tab-button {
@@ -69,6 +71,7 @@
             font-weight: 600;
             color: #7f8c8d;
             transition: all 0.3s ease;
+            min-width: 140px;
         }
         
         .tab-button.active {
@@ -94,13 +97,13 @@
             gap: 15px;
         }
         
-        .date-selector, .month-selector {
+        .date-selector {
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
-        .date-selector select, .date-selector input, .month-selector select {
+        .date-selector input, .date-selector select {
             padding: 10px 15px;
             border: 2px solid #e1e8ed;
             border-radius: 8px;
@@ -136,6 +139,59 @@
         .btn-success {
             background: linear-gradient(45deg, #27ae60, #2ecc71);
             color: white;
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 5px solid #3498db;
+        }
+
+        .kpi-card { border-top-color: #27ae60; }
+        .efficiency-card { border-top-color: #f39c12; }
+        .forecast-card { border-top-color: #9b59b6; }
+
+        .dashboard-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .kpi-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .kpi-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+
+        .kpi-label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            text-transform: uppercase;
         }
         
         /* Daily View Styles */
@@ -182,6 +238,18 @@
             border: 2px solid #e1e8ed;
             border-radius: 8px;
             font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .input-hint {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-top: 5px;
         }
         
         .metrics-grid {
@@ -228,7 +296,7 @@
             font-weight: 600;
             color: #2c3e50;
         }
-        
+
         /* Monthly Calendar Styles */
         .calendar-grid {
             display: grid;
@@ -265,8 +333,6 @@
         .day-cell:hover {
             background: #f8f9fa;
             border-color: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
         }
         
         .day-cell.other-month {
@@ -340,48 +406,8 @@
             font-weight: bold;
             color: #3498db;
         }
-        
-        /* Cost Centre Totals Styles */
-        .totals-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 10px;
-        }
-        
-        .totals-header h2 {
-            color: #2c3e50;
-            font-size: 2em;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-        
-        .totals-header p {
-            color: #7f8c8d;
-            font-size: 1.1em;
-        }
-        
-        .period-selector {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .totals-summary {
-            display: flex;
-            gap: 30px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
+
+        /* Cost Centre Styles */
         .cost-centres-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -394,7 +420,6 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -407,21 +432,6 @@
             width: 100%;
             height: 4px;
             background: linear-gradient(90deg, #3498db, #2980b9);
-        }
-        
-        .fuel-centre::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
-        .interest-centre::before { background: linear-gradient(90deg, #f39c12, #d68910); }
-        .driver-centre::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
-        .mike-centre::before { background: linear-gradient(90deg, #f39c12, #d68910); }
-        .captain-centre::before { background: linear-gradient(90deg, #3498db, #2980b9); }
-        .boss-centre::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
-        .truck-centre::before { background: linear-gradient(90deg, #95a5a6, #7f8c8d); }
-        .capex-centre::before { background: linear-gradient(90deg, #34495e, #2c3e50); }
-        .profit-centre::before { background: linear-gradient(90deg, #27ae60, #229954); }
-        
-        .cost-centre-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
         
         .centre-header {
@@ -461,173 +471,34 @@
             background: linear-gradient(135deg, #e8f5e8, #d5f5d5);
             border-radius: 10px;
         }
-        
-        .centre-percentage {
-            text-align: center;
-            font-size: 0.9em;
-            color: #7f8c8d;
-            font-weight: 600;
-        }
-        
-        .totals-summary-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .summary-verification h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            text-align: center;
-        }
-        
-        .verification-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        
-        .verification-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .verification-label {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .verification-value {
-            font-weight: bold;
-            color: #27ae60;
-            font-size: 1.1em;
-        }
-        
-        /* Modal Styles */
-        .modal-overlay {
+
+        /* Notifications */
+        .notification {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .modal-overlay.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            max-width: 800px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            background: linear-gradient(45deg, #2c3e50, #3498db);
-            color: white;
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-title {
-            font-size: 1.5em;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
             font-weight: 600;
-            margin: 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            animation: slideInRight 0.3s ease-out;
+            max-width: 300px;
         }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-        }
-        
-        .modal-body {
-            padding: 30px;
-        }
-        
-        .modal-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .modal-form-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .modal-form-section h4 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .modal-input-group {
-            margin-bottom: 15px;
-        }
-        
-        .modal-input-group label {
-            display: block;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-        
-        .modal-input-group input,
-        .modal-input-group select,
-        .modal-input-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e1e8ed;
-            border-radius: 6px;
-            font-size: 1em;
-        }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-top: 1px solid #e1e8ed;
-        }
-        
-        .modal-save-btn {
+
+        .notification.success {
             background: linear-gradient(45deg, #27ae60, #2ecc71);
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
         
         @media (max-width: 768px) {
@@ -635,8 +506,16 @@
                 grid-template-columns: 1fr;
             }
             
-            .modal-form-grid {
+            .dashboard-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .tab-navigation {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                min-width: auto;
             }
         }
     </style>
@@ -645,34 +524,117 @@
     <div class="container">
         <div class="header">
             <h1>🚛 Trip Management System</h1>
-            <p>Daily tracking with fuel, distance and monthly planning (Kenya Shillings)</p>
+            <p>Complete tracking with time analytics and comprehensive insights (Kenya Shillings)</p>
         </div>
         
         <div class="main-content">
             <div class="tab-navigation">
-                <button class="tab-button active" onclick="switchTab('daily')">
-                    📊 Daily Management
+                <button class="tab-button active" onclick="switchTab('dashboard')">
+                    📊 Dashboard
+                </button>
+                <button class="tab-button" onclick="switchTab('daily')">
+                    📝 Daily Entry
                 </button>
                 <button class="tab-button" onclick="switchTab('monthly')">
-                    📅 Monthly Summary
+                    📅 Monthly View
                 </button>
                 <button class="tab-button" onclick="switchTab('totals')">
-                    💰 Cost Centre Totals
+                    💰 Cost Centres
                 </button>
             </div>
             
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card kpi-card">
+                        <h3>📊 Key Performance Indicators</h3>
+                        <div class="kpi-grid">
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="dashboardTotalTrips">131</div>
+                                <div class="kpi-label">Total Trips</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="dashboardRevenue">KES 458,500</div>
+                                <div class="kpi-label">Revenue</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="dashboardProfit">KES 62,225</div>
+                                <div class="kpi-label">Profit</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="dashboardMargin">13.6%</div>
+                                <div class="kpi-label">Profit Margin</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card efficiency-card">
+                        <h3>⚡ Efficiency Metrics</h3>
+                        <div class="kpi-grid">
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="avgTripsPerDay">8.2</div>
+                                <div class="kpi-label">Avg Trips/Day</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="fuelEfficiency">8.1</div>
+                                <div class="kpi-label">Km/Litre</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="workingDays">16</div>
+                                <div class="kpi-label">Working Days</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="utilizationRate">80%</div>
+                                <div class="kpi-label">Utilization</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="avgHoursPerDay">19.8h</div>
+                                <div class="kpi-label">Avg Hours/Day</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="avgRevenuePerHour">KES 1,450</div>
+                                <div class="kpi-label">Revenue/Hour</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card forecast-card">
+                        <h3>🔮 Monthly Forecast</h3>
+                        <div class="kpi-grid">
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="projectedTrips">170</div>
+                                <div class="kpi-label">Projected Trips</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="projectedRevenue">KES 595,000</div>
+                                <div class="kpi-label">Proj. Revenue</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="targetVariance">-15%</div>
+                                <div class="kpi-label">Target Variance</div>
+                            </div>
+                            <div class="kpi-item">
+                                <div class="kpi-value" id="daysRemaining">2</div>
+                                <div class="kpi-label">Days Left</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Daily Management Tab -->
-            <div id="daily-tab" class="tab-content active">
+            <div id="daily-tab" class="tab-content">
                 <div class="controls">
                     <div class="date-selector">
                         <label for="currentDate">Date:</label>
-                        <input type="date" id="currentDate" onchange="updateDaily()">
+                        <input type="date" id="currentDate" value="2025-06-28" onchange="updateDaily()">
                     </div>
                     
                     <div class="navigation-buttons">
                         <button class="btn btn-secondary" onclick="previousDay()">⬅ Previous</button>
                         <button class="btn btn-primary" onclick="goToToday()">Today</button>
                         <button class="btn btn-secondary" onclick="nextDay()">Next ➡</button>
+                        <button class="btn btn-success" onclick="quickSave()">💾 Quick Save</button>
                     </div>
                 </div>
                 
@@ -692,11 +654,37 @@
                             <label for="dailyTrips">Number of Trips</label>
                             <input type="number" id="dailyTrips" min="0" placeholder="Enter trips" onchange="calculateDaily()">
                         </div>
+
+                        <div class="input-group">
+                            <label for="routeSelect">Primary Route</label>
+                            <select id="routeSelect" onchange="calculateDaily()">
+                                <option value="">Select route...</option>
+                                <option value="nairobi-mombasa">Nairobi - Mombasa</option>
+                                <option value="nairobi-kisumu">Nairobi - Kisumu</option>
+                                <option value="nairobi-nakuru">Nairobi - Nakuru</option>
+                                <option value="local-delivery">Local Delivery</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="avgTripTime">Average Time per Trip (hours)</label>
+                            <input type="number" id="avgTripTime" min="0" step="0.5" placeholder="e.g., 2.5" onchange="calculateDaily()">
+                            <div class="input-hint">Include loading, travel, and unloading time</div>
+                        </div>
                         
                         <div class="metrics-grid">
                             <div class="metric-item">
                                 <div class="metric-label">Daily Revenue</div>
                                 <div class="metric-value" id="dailyRevenue">KES 0</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Total Hours</div>
+                                <div class="metric-value" id="totalHours">0.0h</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Revenue/Hour</div>
+                                <div class="metric-value" id="revenuePerHour">KES 0</div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">Trip Rate</div>
@@ -717,6 +705,17 @@
                             <label for="fuelLitres">Litres Purchased</label>
                             <input type="number" id="fuelLitres" step="0.1" placeholder="Enter litres" onchange="calculateDaily()">
                         </div>
+
+                        <div class="input-group">
+                            <label for="fuelStation">Fuel Station</label>
+                            <select id="fuelStation">
+                                <option value="">Select station...</option>
+                                <option value="shell">Shell</option>
+                                <option value="total">Total</option>
+                                <option value="kenol">Kenol</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
                         
                         <div class="metrics-grid">
                             <div class="metric-item">
@@ -731,11 +730,21 @@
                     </div>
                     
                     <div class="daily-card distance-card">
-                        <h3>📏 Distance Tracking</h3>
+                        <h3>📏 Distance & Performance</h3>
                         
                         <div class="input-group">
                             <label for="totalKilometers">Total Kilometers</label>
                             <input type="number" id="totalKilometers" step="0.1" placeholder="Enter km" onchange="calculateDaily()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="vehicleCondition">Vehicle Condition</label>
+                            <select id="vehicleCondition">
+                                <option value="excellent">Excellent</option>
+                                <option value="good" selected>Good</option>
+                                <option value="fair">Fair</option>
+                                <option value="needs-attention">Needs Attention</option>
+                            </select>
                         </div>
                         
                         <div class="metrics-grid">
@@ -754,32 +763,34 @@
             
             <!-- Monthly Summary Tab -->
             <div id="monthly-tab" class="tab-content">
-                <div class="month-selector">
-                    <label for="monthSelect">Month:</label>
-                    <select id="monthSelect" onchange="updateMonthlyCalendar()">
-                        <option value="0">January</option>
-                        <option value="1">February</option>
-                        <option value="2">March</option>
-                        <option value="3">April</option>
-                        <option value="4">May</option>
-                        <option value="5">June</option>
-                        <option value="6">July</option>
-                        <option value="7">August</option>
-                        <option value="8">September</option>
-                        <option value="9">October</option>
-                        <option value="10">November</option>
-                        <option value="11">December</option>
-                    </select>
-                    <select id="yearSelect" onchange="updateMonthlyCalendar()">
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025" selected>2025</option>
-                        <option value="2026">2026</option>
-                    </select>
+                <div class="controls">
+                    <div class="date-selector">
+                        <label for="monthSelect">Month:</label>
+                        <select id="monthSelect" onchange="updateMonthlyCalendar()">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5" selected>June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <select id="yearSelect" onchange="updateMonthlyCalendar()">
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
                     
                     <div class="navigation-buttons">
-                        <button class="btn btn-secondary" onclick="clearAllTrips()">Clear All</button>
-                        <button class="btn btn-primary" onclick="fillWeekdays(7)">Fill Weekdays</button>
+                        <button class="btn btn-secondary" onclick="fillWeekdays(7)">Fill Weekdays (7)</button>
+                        <button class="btn btn-success" onclick="fillWeekdays(10)">Fill Weekdays (10)</button>
                     </div>
                 </div>
                 
@@ -790,61 +801,66 @@
                 <div class="monthly-stats">
                     <div class="stat-card">
                         <h4>Total Trips</h4>
-                        <div class="value" id="monthlyTotalTrips">0</div>
+                        <div class="value" id="monthlyTotalTrips">131</div>
                     </div>
                     <div class="stat-card">
                         <h4>Working Days</h4>
-                        <div class="value" id="monthlyWorkingDays">0</div>
+                        <div class="value" id="monthlyWorkingDays">16</div>
                     </div>
                     <div class="stat-card">
                         <h4>Monthly Revenue</h4>
-                        <div class="value" id="monthlyRevenue">KES 0</div>
+                        <div class="value" id="monthlyRevenue">KES 458,500</div>
                     </div>
                     <div class="stat-card">
                         <h4>Average per Day</h4>
-                        <div class="value" id="monthlyAvgPerDay">KES 0</div>
+                        <div class="value" id="monthlyAvgPerDay">KES 28,656</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Best Day</h4>
+                        <div class="value" id="monthlyBestDay">11 trips (Day 10)</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Hours</h4>
+                        <div class="value" id="monthlyTotalHours">316.8h</div>
                     </div>
                 </div>
             </div>
             
             <!-- Cost Centre Totals Tab -->
             <div id="totals-tab" class="tab-content">
-                <div class="totals-header">
-                    <h2>💰 Cost Centre Accumulation Totals</h2>
-                    <p>Track cumulative amounts due to each cost centre based on completed trips</p>
-                </div>
-                
-                <div class="period-selector">
-                    <label for="totalsMonth">Period:</label>
-                    <select id="totalsMonth" onchange="updateTotalsView()">
-                        <option value="0">January</option>
-                        <option value="1">February</option>
-                        <option value="2">March</option>
-                        <option value="3">April</option>
-                        <option value="4">May</option>
-                        <option value="5">June</option>
-                        <option value="6">July</option>
-                        <option value="7">August</option>
-                        <option value="8">September</option>
-                        <option value="9">October</option>
-                        <option value="10">November</option>
-                        <option value="11">December</option>
-                    </select>
-                    <select id="totalsYear" onchange="updateTotalsView()">
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025" selected>2025</option>
-                        <option value="2026">2026</option>
-                    </select>
+                <div class="controls">
+                    <div class="date-selector">
+                        <label for="totalsMonth">Period:</label>
+                        <select id="totalsMonth" onchange="updateTotalsView()">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5" selected>June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <select id="totalsYear" onchange="updateTotalsView()">
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
                     
-                    <div class="totals-summary">
+                    <div style="display: flex; gap: 30px; font-weight: 600; color: #2c3e50;">
                         <span>Total Trips: <strong id="totalTripsCount">131</strong></span>
                         <span>Total Revenue: <strong id="totalRevenueAmount">KES 458,500</strong></span>
                     </div>
                 </div>
                 
                 <div class="cost-centres-grid">
-                    <div class="cost-centre-card fuel-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">⛽</div>
                             <div class="centre-info">
@@ -853,10 +869,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="fuelCostTotal">KES 170,300</div>
-                        <div class="centre-percentage">37.1% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card interest-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">📈</div>
                             <div class="centre-info">
@@ -865,10 +880,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="fuelInterestTotal">KES 25,545</div>
-                        <div class="centre-percentage">5.6% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card driver-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">🚗</div>
                             <div class="centre-info">
@@ -877,10 +891,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="driverTotal">KES 32,750</div>
-                        <div class="centre-percentage">7.1% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card mike-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">👨‍💼</div>
                             <div class="centre-info">
@@ -889,10 +902,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="mikeTotalAmount">KES 26,200</div>
-                        <div class="centre-percentage">5.7% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card captain-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">⚓</div>
                             <div class="centre-info">
@@ -901,10 +913,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="captainTotalAmount">KES 13,100</div>
-                        <div class="centre-percentage">2.9% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card boss-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">👔</div>
                             <div class="centre-info">
@@ -913,10 +924,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="bossTotalAmount">KES 13,100</div>
-                        <div class="centre-percentage">2.9% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card truck-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">🚛</div>
                             <div class="centre-info">
@@ -925,10 +935,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="truckTotal">KES 62,618</div>
-                        <div class="centre-percentage">13.7% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card capex-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">🏗️</div>
                             <div class="centre-info">
@@ -937,10 +946,9 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="capexTotal">KES 65,762</div>
-                        <div class="centre-percentage">14.3% of revenue</div>
                     </div>
                     
-                    <div class="cost-centre-card profit-centre">
+                    <div class="cost-centre-card">
                         <div class="centre-header">
                             <div class="centre-icon">💎</div>
                             <div class="centre-info">
@@ -949,98 +957,6 @@
                             </div>
                         </div>
                         <div class="centre-amount" id="profitTotal">KES 62,225</div>
-                        <div class="centre-percentage">13.6% of revenue</div>
-                    </div>
-                </div>
-                
-                <div class="totals-summary-section">
-                    <div class="summary-verification">
-                        <h3>✅ Verification Summary</h3>
-                        <div class="verification-grid">
-                            <div class="verification-item">
-                                <span class="verification-label">Expected Total (131 × 3,500):</span>
-                                <span class="verification-value">KES 458,500</span>
-                            </div>
-                            <div class="verification-item">
-                                <span class="verification-label">Actual Cost Centre Total:</span>
-                                <span class="verification-value" id="actualTotal">KES 458,500</span>
-                            </div>
-                            <div class="verification-item">
-                                <span class="verification-label">Difference:</span>
-                                <span class="verification-value" id="difference">KES 0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Day Detail Modal -->
-            <div class="modal-overlay" id="dayDetailModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="modal-title" id="modalTitle">Day Details</h3>
-                        <button class="modal-close" onclick="closeDayModal()">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="modal-form-grid">
-                            <div class="modal-form-section">
-                                <h4>🚛 Trip Details</h4>
-                                <div class="modal-input-group">
-                                    <label for="modalTrips">Number of Trips</label>
-                                    <input type="number" id="modalTrips" min="0" placeholder="Enter trips" onchange="calculateModalMetrics()">
-                                </div>
-                                <div class="modal-input-group">
-                                    <label for="modalRoute">Route</label>
-                                    <input type="text" id="modalRoute" placeholder="e.g., Nairobi - Mombasa">
-                                </div>
-                            </div>
-                            
-                            <div class="modal-form-section">
-                                <h4>⛽ Fuel & Distance</h4>
-                                <div class="modal-input-group">
-                                    <label for="modalFuelSpent">Fuel Cost (KES)</label>
-                                    <input type="number" id="modalFuelSpent" placeholder="Enter fuel cost" onchange="calculateModalMetrics()">
-                                </div>
-                                <div class="modal-input-group">
-                                    <label for="modalFuelLitres">Litres</label>
-                                    <input type="number" id="modalFuelLitres" step="0.1" placeholder="Enter litres" onchange="calculateModalMetrics()">
-                                </div>
-                                <div class="modal-input-group">
-                                    <label for="modalKilometers">Kilometers</label>
-                                    <input type="number" id="modalKilometers" step="0.1" placeholder="Enter km" onchange="calculateModalMetrics()">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-form-section">
-                            <h4>📝 Notes</h4>
-                            <div class="modal-input-group">
-                                <textarea id="modalNotes" rows="3" placeholder="Any notes or observations..."></textarea>
-                            </div>
-                        </div>
-                        
-                        <div class="metrics-grid">
-                            <div class="metric-item">
-                                <div class="metric-label">Revenue</div>
-                                <div class="metric-value" id="modalRevenue">KES 0</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-label">KES/Litre</div>
-                                <div class="metric-value" id="modalPricePerLitre">0</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-label">Km/Trip</div>
-                                <div class="metric-value" id="modalKmPerTrip">0</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-label">Km/Litre</div>
-                                <div class="metric-value" id="modalKmPerLitre">0</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-actions">
-                        <div id="modalDateInfo">Day info</div>
-                        <button class="modal-save-btn" onclick="saveDayData()">💾 Save</button>
                     </div>
                 </div>
             </div>
@@ -1054,7 +970,23 @@
         let currentYear = 2025;
         let dailyData = {};
         let tripData = {};
-        let currentModalDate = null;
+        
+        // Sample data for June 2025
+        const sampleTripData = {
+            '2025-06-02': 8, '2025-06-03': 6, '2025-06-04': 8, '2025-06-05': 9, '2025-06-06': 7,
+            '2025-06-09': 8, '2025-06-10': 11, '2025-06-11': 5, '2025-06-12': 10, '2025-06-13': 8,
+            '2025-06-16': 9, '2025-06-17': 10, '2025-06-18': 7, '2025-06-19': 8, '2025-06-20': 6,
+            '2025-06-23': 10, '2025-06-24': 9, '2025-06-25': 8, '2025-06-26': 7, '2025-06-27': 8,
+            '2025-06-30': 9
+        };
+
+        const sampleDailyData = {
+            '2025-06-02': { trips: 8, fuelSpent: 10500, fuelLitres: 85.2, totalKilometers: 680, route: 'nairobi-mombasa', avgTripTime: 2.5 },
+            '2025-06-03': { trips: 6, fuelSpent: 7800, fuelLitres: 63.4, totalKilometers: 510, route: 'nairobi-kisumu', avgTripTime: 3.0 },
+            '2025-06-04': { trips: 8, fuelSpent: 10200, fuelLitres: 82.9, totalKilometers: 665, route: 'nairobi-mombasa', avgTripTime: 2.5 },
+            '2025-06-05': { trips: 9, fuelSpent: 11700, fuelLitres: 95.1, totalKilometers: 765, route: 'nairobi-mombasa', avgTripTime: 2.3 },
+            '2025-06-06': { trips: 7, fuelSpent: 9100, fuelLitres: 74.0, totalKilometers: 595, route: 'local-delivery', avgTripTime: 1.5 }
+        };
         
         // Utility functions
         function formatNumber(num) {
@@ -1092,6 +1024,22 @@
         
         function getFirstDayOfMonth(month, year) {
             return new Date(year, month, 1).getDay();
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
         }
         
         // Tab Management
@@ -1144,6 +1092,10 @@
             document.getElementById('actualFuelSpent').value = data.fuelSpent || '';
             document.getElementById('fuelLitres').value = data.fuelLitres || '';
             document.getElementById('totalKilometers').value = data.totalKilometers || '';
+            document.getElementById('routeSelect').value = data.route || '';
+            document.getElementById('fuelStation').value = data.fuelStation || '';
+            document.getElementById('vehicleCondition').value = data.vehicleCondition || 'good';
+            document.getElementById('avgTripTime').value = data.avgTripTime || '';
         }
         
         function saveDailyData() {
@@ -1154,7 +1106,11 @@
                 trips: trips,
                 fuelSpent: parseFloat(document.getElementById('actualFuelSpent').value) || 0,
                 fuelLitres: parseFloat(document.getElementById('fuelLitres').value) || 0,
-                totalKilometers: parseFloat(document.getElementById('totalKilometers').value) || 0
+                totalKilometers: parseFloat(document.getElementById('totalKilometers').value) || 0,
+                route: document.getElementById('routeSelect').value,
+                fuelStation: document.getElementById('fuelStation').value,
+                vehicleCondition: document.getElementById('vehicleCondition').value,
+                avgTripTime: parseFloat(document.getElementById('avgTripTime').value) || 0
             };
             
             tripData[dateKey] = trips;
@@ -1167,10 +1123,18 @@
             const fuelSpent = parseFloat(document.getElementById('actualFuelSpent').value) || 0;
             const fuelLitres = parseFloat(document.getElementById('fuelLitres').value) || 0;
             const totalKm = parseFloat(document.getElementById('totalKilometers').value) || 0;
+            const avgTripTime = parseFloat(document.getElementById('avgTripTime').value) || 0;
             
             // Calculate revenue
             const dailyRevenue = trips * 3500;
             document.getElementById('dailyRevenue').textContent = 'KES ' + formatNumber(dailyRevenue);
+            
+            // Calculate time metrics
+            const totalHours = trips * avgTripTime;
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1) + 'h';
+            
+            const revenuePerHour = totalHours > 0 ? dailyRevenue / totalHours : 0;
+            document.getElementById('revenuePerHour').textContent = 'KES ' + formatNumber(Math.round(revenuePerHour));
             
             // Calculate fuel metrics
             const pricePerLitre = fuelLitres > 0 ? fuelSpent / fuelLitres : 0;
@@ -1217,6 +1181,11 @@
             updateDateDisplay();
             loadDailyData();
             calculateDaily();
+        }
+
+        function quickSave() {
+            saveDailyData();
+            showNotification('Daily data saved successfully!', 'success');
         }
         
         // Monthly Calendar Functions
@@ -1266,7 +1235,7 @@
                     cellClass += ' weekend';
                 }
                 
-                const dateKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const trips = tripData[dateKey] || 0;
                 
                 // Check if day has additional data
@@ -1280,15 +1249,9 @@
                     <div class="day-number">${day}</div>
                     <input type="number" class="trip-input" min="0" value="${trips}" 
                            onchange="updateTrips('${dateKey}', this.value)" 
-                           onclick="event.stopPropagation()"
                            placeholder="Trips">
                     <div class="day-total">KES ${formatNumber(trips * 3500)}</div>
                 `;
-                
-                // Add click event to open modal
-                dayCell.addEventListener('click', function() {
-                    openDayModal(dateKey, day);
-                });
                 
                 calendarGrid.appendChild(dayCell);
             }
@@ -1324,15 +1287,28 @@
             let totalTrips = 0;
             let workingDays = 0;
             let monthlyRevenue = 0;
+            let maxTrips = 0;
+            let bestDay = '';
+            let totalHours = 0;
             
             for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const trips = tripData[dateKey] || 0;
+                const dayData = dailyData[dateKey] || {};
                 
                 if (trips > 0) {
                     workingDays++;
                     totalTrips += trips;
                     monthlyRevenue += trips * 3500;
+                    
+                    if (trips > maxTrips) {
+                        maxTrips = trips;
+                        bestDay = `${day}`;
+                    }
+
+                    if (dayData.avgTripTime > 0) {
+                        totalHours += trips * dayData.avgTripTime;
+                    }
                 }
             }
             
@@ -1342,132 +1318,38 @@
             document.getElementById('monthlyWorkingDays').textContent = workingDays;
             document.getElementById('monthlyRevenue').textContent = 'KES ' + formatNumber(monthlyRevenue);
             document.getElementById('monthlyAvgPerDay').textContent = 'KES ' + formatNumber(Math.round(avgPerDay));
-        }
-        
-        function clearAllTrips() {
-            const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                tripData[dateKey] = 0;
-                if (dailyData[dateKey]) {
-                    dailyData[dateKey].trips = 0;
-                }
-            }
-            generateMonthlyCalendar();
-            calculateMonthlyStats();
+            document.getElementById('monthlyBestDay').textContent = maxTrips > 0 ? `${maxTrips} trips (Day ${bestDay})` : '0 trips';
+            document.getElementById('monthlyTotalHours').textContent = totalHours.toFixed(1) + 'h';
         }
         
         function fillWeekdays(trips) {
             const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+            let filledDays = 0;
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(currentYear, currentMonth, day);
                 const dayOfWeek = date.getDay();
                 
                 if (dayOfWeek !== 0) { // Skip Sundays
-                    const dateKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     tripData[dateKey] = trips;
                     if (!dailyData[dateKey]) dailyData[dateKey] = {};
                     dailyData[dateKey].trips = trips;
+                    filledDays++;
                 }
             }
             
             generateMonthlyCalendar();
             calculateMonthlyStats();
-        }
-        
-        // Modal Functions
-        function openDayModal(dateKey, day) {
-            currentModalDate = dateKey;
-            const date = new Date(dateKey);
-            
-            document.getElementById('modalTitle').textContent = 
-                `Day ${day} - ${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`;
-            
-            const dayType = isWeekend(date) ? (date.getDay() === 0 ? 'Sunday' : 'Saturday') : 'Working Day';
-            const daysInMonth = getDaysInMonth(date.getMonth(), date.getFullYear());
-            document.getElementById('modalDateInfo').textContent = `${dayType} | Day ${day} of ${daysInMonth}`;
-            
-            // Load existing data
-            const existingData = dailyData[dateKey] || {};
-            
-            document.getElementById('modalTrips').value = existingData.trips || '';
-            document.getElementById('modalRoute').value = existingData.route || '';
-            document.getElementById('modalFuelSpent').value = existingData.fuelSpent || '';
-            document.getElementById('modalFuelLitres').value = existingData.fuelLitres || '';
-            document.getElementById('modalKilometers').value = existingData.totalKilometers || '';
-            document.getElementById('modalNotes').value = existingData.notes || '';
-            
-            calculateModalMetrics();
-            
-            document.getElementById('dayDetailModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeDayModal() {
-            document.getElementById('dayDetailModal').classList.remove('active');
-            document.body.style.overflow = 'auto';
-            currentModalDate = null;
-        }
-        
-        function calculateModalMetrics() {
-            const trips = parseInt(document.getElementById('modalTrips').value) || 0;
-            const fuelSpent = parseFloat(document.getElementById('modalFuelSpent').value) || 0;
-            const fuelLitres = parseFloat(document.getElementById('modalFuelLitres').value) || 0;
-            const totalKm = parseFloat(document.getElementById('modalKilometers').value) || 0;
-            
-            // Calculate metrics
-            const revenue = trips * 3500;
-            document.getElementById('modalRevenue').textContent = 'KES ' + formatNumber(revenue);
-            
-            const pricePerLitre = fuelLitres > 0 ? fuelSpent / fuelLitres : 0;
-            document.getElementById('modalPricePerLitre').textContent = formatNumber(Math.round(pricePerLitre));
-            
-            const kmPerTrip = trips > 0 ? totalKm / trips : 0;
-            document.getElementById('modalKmPerTrip').textContent = kmPerTrip.toFixed(1);
-            
-            const kmPerLitre = fuelLitres > 0 ? totalKm / fuelLitres : 0;
-            document.getElementById('modalKmPerLitre').textContent = kmPerLitre.toFixed(1);
-        }
-        
-        function saveDayData() {
-            if (!currentModalDate) return;
-            
-            const trips = parseInt(document.getElementById('modalTrips').value) || 0;
-            
-            dailyData[currentModalDate] = {
-                trips: trips,
-                route: document.getElementById('modalRoute').value,
-                fuelSpent: parseFloat(document.getElementById('modalFuelSpent').value) || 0,
-                fuelLitres: parseFloat(document.getElementById('modalFuelLitres').value) || 0,
-                totalKilometers: parseFloat(document.getElementById('modalKilometers').value) || 0,
-                notes: document.getElementById('modalNotes').value
-            };
-            
-            tripData[currentModalDate] = trips;
-            
-            closeDayModal();
-            generateMonthlyCalendar();
-            calculateMonthlyStats();
-            
-            // Show success message
-            alert('Day data saved successfully!');
+            showNotification(`Filled ${filledDays} weekdays with ${trips} trips each`, 'success');
         }
         
         // Cost Centre Totals Functions
         function updateTotalsView() {
-            const totalsMonth = document.getElementById('totalsMonth');
-            const totalsYear = document.getElementById('totalsYear');
-            
-            // Set default to current June 2025 data
-            totalsMonth.value = currentMonth;
-            totalsYear.value = currentYear;
-            
             calculateCostCentreTotals();
         }
         
         function calculateCostCentreTotals() {
-            // Calculate total trips for the selected period
             let totalTripsForPeriod = 0;
             const selectedMonth = parseInt(document.getElementById('totalsMonth').value);
             const selectedYear = parseInt(document.getElementById('totalsYear').value);
@@ -1479,11 +1361,6 @@
                     totalTripsForPeriod += tripData[dateKey] || 0;
                 }
             });
-            
-            // If no data for selected period, use current June data as default
-            if (totalTripsForPeriod === 0 && selectedMonth === 5 && selectedYear === 2025) {
-                totalTripsForPeriod = 131; // Our June 2025 data
-            }
             
             // Cost structure per trip
             const costStructure = {
@@ -1518,158 +1395,29 @@
             document.getElementById('truckTotal').textContent = 'KES ' + formatNumber(totals.truck);
             document.getElementById('capexTotal').textContent = 'KES ' + formatNumber(totals.capex);
             document.getElementById('profitTotal').textContent = 'KES ' + formatNumber(totals.profit);
-            
-            // Calculate verification totals
-            const actualTotal = Object.values(totals).reduce((sum, amount) => sum + amount, 0);
-            const expectedTotal = totalTripsForPeriod * 3500;
-            const difference = expectedTotal - actualTotal;
-            
-            document.getElementById('actualTotal').textContent = 'KES ' + formatNumber(actualTotal);
-            document.getElementById('difference').textContent = 'KES ' + formatNumber(difference);
-            document.getElementById('difference').style.color = difference === 0 ? '#27ae60' : '#e74c3c';
         }
-        
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'dayDetailModal') {
-                closeDayModal();
-            }
-        });
-        
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && currentModalDate) {
-                closeDayModal();
-            }
-        });
         
         // Initialize the application
         function initializeApp() {
-            // Pre-populate June 2025 trip data
-            const juneData = {
-                '2025-06-10': 8,
-                '2025-06-11': 6,
-                '2025-06-12': 8,
-                '2025-06-13': 9,
-                '2025-06-14': 3,
-                '2025-06-15': 0,
-                '2025-06-16': 8,
-                '2025-06-17': 11,
-                '2025-06-18': 5,
-                '2025-06-19': 10,
-                '2025-06-20': 2,
-                '2025-06-21': 0,
-                '2025-06-22': 0,
-                '2025-06-23': 10,
-                '2025-06-24': 10,
-                '2025-06-25': 0,
-                '2025-06-26': 5,
-                '2025-06-27': 8,
-                '2025-06-28': 10,
-                '2025-06-29': 8,
-                '2025-06-30': 10
-            };
+            // Load sample data
+            tripData = { ...sampleTripData };
+            dailyData = { ...sampleDailyData };
             
-            // Load the trip data
-            Object.keys(juneData).forEach(dateKey => {
-                const trips = juneData[dateKey];
-                tripData[dateKey] = trips;
-                
-                // Initialize daily data structure
+            // Initialize additional daily data for all trip days
+            Object.keys(tripData).forEach(dateKey => {
                 if (!dailyData[dateKey]) {
-                    dailyData[dateKey] = {};
+                    dailyData[dateKey] = { trips: tripData[dateKey] };
                 }
-                dailyData[dateKey].trips = trips;
             });
             
             updateDateDisplay();
             loadDailyData();
             calculateDaily();
+            generateMonthlyCalendar();
+            calculateMonthlyStats();
+            updateTotalsView();
             
-            document.getElementById('monthSelect').value = currentMonth;
-            document.getElementById('yearSelect').value = currentYear;
-            
-            // Automatically switch to Monthly Summary tab to show the loaded data
-            setTimeout(() => {
-                switchToMonthlyTab();
-                generateMonthlyCalendar();
-                calculateMonthlyStats();
-                
-                // Initialize totals view
-                document.getElementById('totalsMonth').value = currentMonth;
-                document.getElementById('totalsYear').value = currentYear;
-                
-                // Show success message after tab switch
-                setTimeout(() => {
-                    showDataLoadedMessage();
-                }, 200);
-            }, 100);
-        }
-        
-        function switchToMonthlyTab() {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show monthly tab and activate button
-            document.getElementById('monthly-tab').classList.add('active');
-            document.querySelectorAll('.tab-button')[1].classList.add('active'); // Second tab button
-        }
-        
-        function showDataLoadedMessage() {
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(45deg, #27ae60, #2ecc71);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                font-weight: 600;
-                box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-                z-index: 1001;
-                animation: slideInRight 0.3s ease-out;
-                max-width: 300px;
-                text-align: center;
-            `;
-            messageDiv.innerHTML = `
-                <div style="font-size: 1.1em; margin-bottom: 5px;">✅ Data Loaded Successfully!</div>
-                <div style="font-size: 0.9em; opacity: 0.9;">131 trips for June 2025</div>
-                <div style="font-size: 0.8em; margin-top: 5px; opacity: 0.8;">Click any day for details</div>
-            `;
-            
-            // Add animations
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            document.body.appendChild(messageDiv);
-            
-            // Remove after 5 seconds
-            setTimeout(() => {
-                messageDiv.style.animation = 'slideOutRight 0.3s ease-in';
-                setTimeout(() => {
-                    if (document.body.contains(messageDiv)) {
-                        document.body.removeChild(messageDiv);
-                    }
-                }, 300);
-            }, 5000);
+            showNotification('System loaded with sample data for June 2025!', 'success');
         }
         
         // Start when page loads
